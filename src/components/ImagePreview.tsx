@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import type { WatermarkConfig } from '../types'
+import type { WatermarkConfig } from '@/types'
 
 interface ImagePreviewProps {
   images: File[]
   watermarkConfig: WatermarkConfig
-  onDownloadComplete?: () => void
+  onDownloadComplete?: (images: string[]) => void
   isPreview?: boolean
 }
 
@@ -268,7 +268,7 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    onDownloadComplete?.()
+    onDownloadComplete?.([watermarkedImageUrl])
   }
 
   return (

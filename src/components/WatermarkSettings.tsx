@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import type { WatermarkConfig } from '../types'
+import type { WatermarkConfig } from '@/types'
 
 interface WatermarkSettingsProps {
   config: WatermarkConfig

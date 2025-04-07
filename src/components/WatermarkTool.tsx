@@ -5,7 +5,7 @@ import { ImageUploader } from './ImageUploader'
 import { WatermarkSettings } from './WatermarkSettings'
 import { ImagePreview } from './ImagePreview'
 import { ContactModal } from './ContactModal'
-import type { WatermarkConfig } from '../types'
+import type { WatermarkConfig } from '@/types'
 
 const STORAGE_KEY = 'watermark_usage_count'
 const MAX_USAGE_COUNT = 5
@@ -96,7 +96,7 @@ export const WatermarkTool: React.FC = () => {
   }
 
   const handleConfigChange = (newConfig: Partial<WatermarkConfig>) => {
-    setWatermarkConfig(prev => ({
+    setWatermarkConfig((prev: WatermarkConfig) => ({
       ...prev,
       ...newConfig
     }))
