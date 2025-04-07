@@ -5,7 +5,7 @@ import { ImageUploader } from './ImageUploader'
 import { WatermarkSettings } from './WatermarkSettings'
 import { ImagePreview } from './ImagePreview'
 import { ContactModal } from './ContactModal'
-import type { WatermarkConfig } from '@/types'
+import type { WatermarkConfig, WatermarkType } from '@/types'
 
 const STORAGE_KEY = 'watermark_usage_count'
 const MAX_USAGE_COUNT = 5
@@ -14,6 +14,7 @@ export const WatermarkTool: React.FC = () => {
   const [images, setImages] = useState<File[]>([])
   const [usageCount, setUsageCount] = useState(0)
   const [isContactModalOpen, setIsContactModalOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState<WatermarkType>('text')
   const [watermarkConfig, setWatermarkConfig] = useState<WatermarkConfig>({
     // 基本属性
     text: '水印文字',
@@ -31,13 +32,35 @@ export const WatermarkTool: React.FC = () => {
     // 类型
     type: 'text',
     
+    // 3D文字效果
+    enable3D: false,
+    depth: 5,
+    lightAngle: 45,
+    highlightColor: '#ffffff',
+    shadowColor: '#000000',
+    
     // 防伪相关
     securityCode: '',
     securityCodeSize: 'medium',
     securityFont: 'Arial',
     securityCodePosition: 'corners',
     enableHiddenCode: false,
-    hiddenCodeOpacity: 0.1
+    hiddenCodeOpacity: 0.1,
+
+    // 图片水印相关
+    imageScale: 0.2,
+    imageOpacity: 0.5,
+    imagePosition: 'center',
+    imageRotation: 0,
+
+    // 图案水印相关
+    patternType: 'circle',
+    patternColor: '#000000',
+    patternSize: 20,
+    patternOpacity: 0.5,
+    patternRotation: 0,
+    patternSpacing: 50,
+    customPattern: ''
   })
 
   // 初始化使用次数
@@ -96,7 +119,7 @@ export const WatermarkTool: React.FC = () => {
   }
 
   const handleConfigChange = (newConfig: Partial<WatermarkConfig>) => {
-    setWatermarkConfig((prev: WatermarkConfig) => ({
+    setWatermarkConfig(prev => ({
       ...prev,
       ...newConfig
     }))
@@ -159,6 +182,49 @@ export const WatermarkTool: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      <div className="flex justify-center space-x-4">
+        <button
+          onClick={() => setActiveTab('text')}
+          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+            activeTab === 'text'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          文字水印
+        </button>
+        <button
+          onClick={() => setActiveTab('image')}
+          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+            activeTab === 'image'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          图片水印
+        </button>
+        <button
+          onClick={() => setActiveTab('pattern')}
+          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+            activeTab === 'pattern'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          图案水印
+        </button>
+        <button
+          onClick={() => setActiveTab('security')}
+          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+            activeTab === 'security'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          防伪水印
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-6 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex flex-col space-y-2">
@@ -227,9 +293,17 @@ export const WatermarkTool: React.FC = () => {
           )}
 
           <div className="border-t border-gray-100 pt-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">水印设置</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              {activeTab === 'text' ? '水印设置' : 
+               activeTab === 'image' ? '图片水印设置' : 
+               activeTab === 'pattern' ? '图案水印设置' : 
+               '防伪设置'}
+            </h2>
             <WatermarkSettings
-              config={watermarkConfig}
+              config={{
+                ...watermarkConfig,
+                type: activeTab
+              }}
               onChange={handleConfigChange}
             />
           </div>
@@ -240,7 +314,10 @@ export const WatermarkTool: React.FC = () => {
           <div className="relative">
             <ImagePreview
               images={images}
-              watermarkConfig={watermarkConfig}
+              watermarkConfig={{
+                ...watermarkConfig,
+                type: activeTab
+              }}
               onDownloadComplete={handleDownloadComplete}
               isPreview={true}
             />

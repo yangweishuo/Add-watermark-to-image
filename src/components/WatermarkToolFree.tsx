@@ -20,12 +20,28 @@ export const WatermarkToolFree: React.FC = () => {
     tileGap: 100,
     tileScale: 1,
     type: 'text',
+    enable3D: false,
+    depth: 5,
+    lightAngle: 45,
+    highlightColor: '#ffffff',
+    shadowColor: '#000000',
     securityCode: '',
     securityCodeSize: 'medium',
     securityFont: 'Arial',
     securityCodePosition: 'corners',
     enableHiddenCode: false,
-    hiddenCodeOpacity: 0.1
+    hiddenCodeOpacity: 0.1,
+    imageScale: 0.2,
+    imageOpacity: 0.5,
+    imagePosition: 'center',
+    imageRotation: 0,
+    patternType: 'circle',
+    patternColor: '#000000',
+    patternSize: 20,
+    patternOpacity: 0.5,
+    patternRotation: 0,
+    patternSpacing: 50,
+    customPattern: ''
   })
 
   const handleImagesUpload = (files: File[]) => {

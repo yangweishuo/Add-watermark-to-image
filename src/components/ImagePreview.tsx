@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import type { WatermarkConfig } from '@/types'
+import JSZip from 'jszip'
 
 interface ImagePreviewProps {
   images: File[]
@@ -27,308 +28,320 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
   onDownloadComplete,
   isPreview = false
 }) => {
-  const [previewUrls, setPreviewUrls] = useState<string[]>([])
-  const [watermarkedUrls, setWatermarkedUrls] = useState<string[]>([])
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [processedImages, setProcessedImages] = useState<string[]>([])
+  const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => {
-    const urls = images.map(file => URL.createObjectURL(file))
-    setPreviewUrls(urls)
-    return () => {
-      urls.forEach(URL.revokeObjectURL)
+    if (images.length > 0) {
+      processImages()
+    } else {
+      setProcessedImages([])
     }
-  }, [images])
+  }, [images, watermarkConfig])
 
-  useEffect(() => {
-    const updateWatermarks = async () => {
-      if (images.length === 0) return
-      const newWatermarkedUrls = await Promise.all(
-        previewUrls.map(url => applyWatermark(url))
-      )
-      setWatermarkedUrls(newWatermarkedUrls.filter((url): url is string => url !== undefined))
-    }
-    updateWatermarks()
-  }, [previewUrls, watermarkConfig])
+  const processImages = async () => {
+    setIsProcessing(true)
+    const processed: string[] = []
 
-  const drawSecurityWatermark = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
-    const {
-      securityCode = '',
-      securityFont = 'Arial',
-      color = '#000000',
-      fontSize = 24,
-      opacity = 0.5,
-      securityCodePosition = 'corners',
-      securityCodeSize = 'medium',
-      angle = 0
-    } = watermarkConfig
-    
-    if (!securityCode) return
-
-    const actualFontSize = getSecurityCodeFontSize(securityCodeSize, fontSize)
-    ctx.font = `${actualFontSize}px ${securityFont}, monospace`
-    ctx.fillStyle = color
-    ctx.globalAlpha = opacity
-
-    const padding = actualFontSize
-
-    if (securityCodePosition === 'corners') {
-      // 在四个角绘制防伪码
-      const corners = [
-        { x: padding, y: padding + actualFontSize }, // 左上
-        { x: canvas.width - padding, y: padding + actualFontSize }, // 右上
-        { x: padding, y: canvas.height - padding }, // 左下
-        { x: canvas.width - padding, y: canvas.height - padding } // 右下
-      ]
-
-      corners.forEach(({ x, y }) => {
-        ctx.save()
-        ctx.translate(x, y)
-        ctx.rotate((angle * Math.PI) / 180)
-        ctx.fillText(securityCode, 0, 0)
-        ctx.restore()
-      })
-    } else if (securityCodePosition === 'center') {
-      // 在中心绘制防伪码
-      ctx.save()
-      ctx.translate(canvas.width / 2, canvas.height / 2)
-      ctx.rotate((angle * Math.PI) / 180)
-      const textMetrics = ctx.measureText(securityCode)
-      ctx.fillText(securityCode, -textMetrics.width / 2, 0)
-      ctx.restore()
-    } else if (securityCodePosition === 'tiled') {
-      // 平铺防伪码
-      const textMetrics = ctx.measureText(securityCode)
-      const codeWidth = textMetrics.width
-      const codeHeight = actualFontSize
-      const gap = Math.max(codeWidth, codeHeight) * 2
-
-      for (let y = 0; y < canvas.height; y += gap) {
-        for (let x = 0; x < canvas.width; x += gap) {
-          ctx.save()
-          ctx.translate(x + codeWidth / 2, y + codeHeight / 2)
-          ctx.rotate((angle * Math.PI) / 180)
-          ctx.fillText(securityCode, -codeWidth / 2, 0)
-          ctx.restore()
-        }
-      }
+    for (const image of images) {
+      const result = await addWatermark(image)
+      processed.push(result)
     }
 
-    // 如果启用隐藏水印，添加半透明的数字水印
-    if (watermarkConfig.enableHiddenCode) {
-      ctx.save()
-      ctx.globalAlpha = watermarkConfig.hiddenCodeOpacity || 0.1
-      ctx.font = `${actualFontSize * 2}px ${securityFont}, monospace`
-      
-      const step = actualFontSize * 3
-      for (let x = -canvas.width; x < canvas.width * 2; x += step) {
-        for (let y = -canvas.height; y < canvas.height * 2; y += step) {
-          ctx.save()
-          ctx.translate(x, y)
-          ctx.rotate((45 * Math.PI) / 180)
-          ctx.fillText(securityCode, 0, 0)
-          ctx.restore()
-        }
-      }
-      ctx.restore()
-    }
+    setProcessedImages(processed)
+    setIsProcessing(false)
   }
 
-  const drawTiledWatermark = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
-    const { 
-      tileGap = 100, 
-      tileScale = 1, 
-      fontSize = 24, 
-      text = '', 
-      color = '#000000',
-      angle = 0
-    } = watermarkConfig
-    
-    const scaledFontSize = fontSize * tileScale
-    ctx.font = `${scaledFontSize}px Arial`
-    ctx.fillStyle = color
-    
-    // 计算单个水印的尺寸
-    const textMetrics = ctx.measureText(text)
-    const watermarkWidth = textMetrics.width
-    const watermarkHeight = scaledFontSize
+  const addWatermark = (image: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const ctx = canvas.getContext('2d')
+          if (!ctx) {
+            resolve(URL.createObjectURL(image))
+            return
+          }
 
-    // 计算需要绘制的行数和列数
-    const cols = Math.ceil(canvas.width / (watermarkWidth + tileGap)) + 1
-    const rows = Math.ceil(canvas.height / (watermarkHeight + tileGap)) + 1
+          // 设置画布大小
+          canvas.width = img.width
+          canvas.height = img.height
 
-    // 计算起始偏移，使水印在画布中居中
-    const startX = -tileGap / 2
-    const startY = -tileGap / 2
+          // 绘制原图
+          ctx.drawImage(img, 0, 0)
 
-    // 绘制水印网格
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const x = startX + col * (watermarkWidth + tileGap)
-        const y = startY + row * (watermarkHeight + tileGap) + watermarkHeight
+          if (watermarkConfig.type === 'text') {
+            addTextWatermark(ctx, img)
+          } else if (watermarkConfig.type === 'image' && watermarkConfig.imageFile) {
+            addImageWatermark(ctx, img.width, img.height)
+          } else if (watermarkConfig.type === 'security') {
+            addSecurityWatermark(ctx, img.width, img.height)
+          }
 
-        ctx.save()
-        ctx.translate(x, y)
-        ctx.rotate((angle * Math.PI) / 180)
-        ctx.fillText(text, 0, 0)
-        ctx.restore()
+          // 转换为Blob并创建URL
+          canvas.toBlob((blob) => {
+            if (blob) {
+              resolve(URL.createObjectURL(blob))
+            } else {
+              resolve(URL.createObjectURL(image))
+            }
+          }, 'image/jpeg', 0.9)
+        }
+        img.src = e.target?.result as string
       }
-    }
-  }
-
-  const applyWatermark = async (imageUrl: string) => {
-    if (!canvasRef.current) return
-
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    // 加载原始图片
-    const img = new Image()
-    img.src = imageUrl
-    await new Promise(resolve => {
-      img.onload = resolve
+      reader.readAsDataURL(image)
     })
+  }
 
-    // 设置画布尺寸
-    canvas.width = img.width
-    canvas.height = img.height
-
-    // 绘制原始图片
-    ctx.drawImage(img, 0, 0)
-
-    // 应用水印
+  const addTextWatermark = (ctx: CanvasRenderingContext2D, image: HTMLImageElement) => {
+    const { text, fontSize, color, opacity, position, angle, enable3D, depth, lightAngle, highlightColor, shadowColor } = watermarkConfig
+    
+    // 设置字体
+    ctx.font = `${fontSize}px Arial`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    
+    // 计算文字位置
+    const { x, y } = calculatePosition(ctx, image, position)
+    
+    // 保存当前状态
     ctx.save()
-    ctx.globalAlpha = watermarkConfig.opacity
-
-    if (watermarkConfig.type === 'text') {
-      if (watermarkConfig.tiled) {
-        // 绘制平铺水印
-        drawTiledWatermark(ctx, canvas)
-      } else {
-        // 绘制单个水印
-        const { text, fontSize, color, position, angle } = watermarkConfig
+    
+    // 移动到文字位置并旋转
+    ctx.translate(x, y)
+    ctx.rotate((angle * Math.PI) / 180)
+    
+    // 设置透明度
+    ctx.globalAlpha = opacity
+    
+    if (enable3D) {
+      // 计算光源方向
+      const lightX = Math.cos((lightAngle * Math.PI) / 180)
+      const lightY = Math.sin((lightAngle * Math.PI) / 180)
+      
+      // 绘制3D效果
+      for (let i = depth; i > 0; i--) {
+        // 计算当前层的偏移
+        const offsetX = i * lightX
+        const offsetY = i * lightY
         
-        // 计算位置
-        let x = 0, y = 0
-        switch (position) {
-          case 'topLeft':
-            x = fontSize; y = fontSize
-            break
-          case 'topCenter':
-            x = canvas.width / 2; y = fontSize
-            break
-          case 'topRight':
-            x = canvas.width - fontSize; y = fontSize
-            break
-          case 'centerLeft':
-            x = fontSize; y = canvas.height / 2
-            break
-          case 'center':
-            x = canvas.width / 2; y = canvas.height / 2
-            break
-          case 'centerRight':
-            x = canvas.width - fontSize; y = canvas.height / 2
-            break
-          case 'bottomLeft':
-            x = fontSize; y = canvas.height - fontSize
-            break
-          case 'bottomCenter':
-            x = canvas.width / 2; y = canvas.height - fontSize
-            break
-          case 'bottomRight':
-            x = canvas.width - fontSize; y = canvas.height - fontSize
-            break
-        }
-        
-        ctx.translate(x, y)
-        ctx.rotate((angle * Math.PI) / 180)
-        ctx.font = `${fontSize}px Arial`
-        ctx.fillStyle = color
-        
-        // 计算文字宽度以实现居中
-        const textMetrics = ctx.measureText(text)
-        ctx.fillText(text, -textMetrics.width / 2, 0)
+        // 设置阴影颜色
+        ctx.fillStyle = shadowColor
+        ctx.fillText(text, offsetX, offsetY)
       }
-    } else if (watermarkConfig.type === 'security') {
-      drawSecurityWatermark(ctx, canvas)
+      
+      // 绘制正面文字
+      ctx.fillStyle = color
+      ctx.fillText(text, 0, 0)
+      
+      // 绘制高光
+      const highlightOffset = depth * 0.2
+      ctx.fillStyle = highlightColor
+      ctx.fillText(text, -highlightOffset * lightX, -highlightOffset * lightY)
+    } else {
+      // 绘制普通文字
+      ctx.fillStyle = color
+      ctx.fillText(text, 0, 0)
+    }
+    
+    // 恢复状态
+    ctx.restore()
+  }
+
+  const addImageWatermark = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    if (!watermarkConfig.imageFile) return
+
+    const watermarkImg = new Image()
+    watermarkImg.src = URL.createObjectURL(watermarkConfig.imageFile)
+
+    ctx.save()
+    ctx.globalAlpha = watermarkConfig.imageOpacity
+
+    // 计算水印图片尺寸
+    const scale = watermarkConfig.imageScale
+    const watermarkWidth = width * scale
+    const watermarkHeight = (watermarkImg.height / watermarkImg.width) * watermarkWidth
+
+    // 计算位置
+    const { x, y } = calculatePosition(ctx, watermarkImg, watermarkConfig.imagePosition)
+
+    // 旋转
+    if (watermarkConfig.imageRotation !== 0) {
+      ctx.translate(x, y)
+      ctx.rotate((watermarkConfig.imageRotation * Math.PI) / 180)
+      ctx.translate(-x, -y)
+    }
+
+    // 绘制水印图片
+    if (watermarkConfig.tiled) {
+      const tileWidth = width / watermarkConfig.tileGap
+      const tileHeight = height / watermarkConfig.tileGap
+      for (let i = 0; i < width; i += tileWidth) {
+        for (let j = 0; j < height; j += tileHeight) {
+          ctx.drawImage(watermarkImg, i, j, watermarkWidth * watermarkConfig.tileScale, watermarkHeight * watermarkConfig.tileScale)
+        }
+      }
+    } else {
+      ctx.drawImage(watermarkImg, x - watermarkWidth / 2, y - watermarkHeight / 2, watermarkWidth, watermarkHeight)
     }
 
     ctx.restore()
-
-    return canvas.toDataURL('image/png')
   }
 
-  const handleDownload = async (imageUrl: string, index: number) => {
-    const watermarkedImageUrl = await applyWatermark(imageUrl)
-    if (!watermarkedImageUrl) return
+  const addSecurityWatermark = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    if (!watermarkConfig.securityCode) return
 
-    const link = document.createElement('a')
-    link.href = watermarkedImageUrl
-    link.download = `watermarked_${index + 1}.png`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    onDownloadComplete?.([watermarkedImageUrl])
+    ctx.save()
+    ctx.font = `${getSecurityFontSize()}px ${watermarkConfig.securityFont}`
+    ctx.fillStyle = '#000000'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+
+    // 根据位置设置绘制点
+    const positions = getSecurityPositions(width, height)
+    positions.forEach(({ x, y }) => {
+      ctx.fillText(watermarkConfig.securityCode, x, y)
+    })
+
+    // 如果启用隐藏防伪码
+    if (watermarkConfig.enableHiddenCode) {
+      ctx.globalAlpha = watermarkConfig.hiddenCodeOpacity
+      const hiddenPositions = getRandomPositions(width, height, 5)
+      hiddenPositions.forEach(({ x, y }) => {
+        ctx.fillText(watermarkConfig.securityCode, x, y)
+      })
+    }
+
+    ctx.restore()
+  }
+
+  const calculatePosition = (ctx: CanvasRenderingContext2D, image: HTMLImageElement, position: string) => {
+    switch (position) {
+      case 'top-left':
+        return { x: image.width * 0.25, y: image.height * 0.25 }
+      case 'top-right':
+        return { x: image.width * 0.75, y: image.height * 0.25 }
+      case 'bottom-left':
+        return { x: image.width * 0.25, y: image.height * 0.75 }
+      case 'bottom-right':
+        return { x: image.width * 0.75, y: image.height * 0.75 }
+      case 'center':
+      default:
+        return { x: image.width / 2, y: image.height / 2 }
+    }
+  }
+
+  const getSecurityFontSize = () => {
+    switch (watermarkConfig.securityCodeSize) {
+      case 'small':
+        return 12
+      case 'large':
+        return 24
+      case 'medium':
+      default:
+        return 16
+    }
+  }
+
+  const getSecurityPositions = (width: number, height: number) => {
+    const positions = []
+    const padding = 50
+
+    switch (watermarkConfig.securityCodePosition) {
+      case 'corners':
+        positions.push(
+          { x: padding, y: padding },
+          { x: width - padding, y: padding },
+          { x: padding, y: height - padding },
+          { x: width - padding, y: height - padding }
+        )
+        break
+      case 'center':
+        positions.push({ x: width / 2, y: height / 2 })
+        break
+      case 'random':
+        positions.push(...getRandomPositions(width, height, 4))
+        break
+    }
+
+    return positions
+  }
+
+  const getRandomPositions = (width: number, height: number, count: number) => {
+    const positions = []
+    const padding = 100
+
+    for (let i = 0; i < count; i++) {
+      positions.push({
+        x: padding + Math.random() * (width - 2 * padding),
+        y: padding + Math.random() * (height - 2 * padding)
+      })
+    }
+
+    return positions
+  }
+
+  const handleDownload = async () => {
+    if (isProcessing || processedImages.length === 0) return
+
+    const zip = new JSZip()
+    const imgFolder = zip.folder('watermarked_images')
+
+    for (let i = 0; i < processedImages.length; i++) {
+      const response = await fetch(processedImages[i])
+      const blob = await response.blob()
+      imgFolder?.file(`watermarked_${i + 1}.jpg`, blob)
+    }
+
+    const content = await zip.generateAsync({ type: 'blob' })
+    const url = URL.createObjectURL(content)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'watermarked_images.zip'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    onDownloadComplete?.(processedImages)
+  }
+
+  if (images.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg border border-gray-200">
+        <p className="text-gray-500">请上传图片</p>
+      </div>
+    )
   }
 
   return (
     <div className="space-y-4">
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
-      
-      <div className="grid grid-cols-1 gap-6">
-        {previewUrls.map((url, index) => (
-          <div key={url} className="space-y-4">
-            {isPreview ? (
-              <div className="relative rounded-xl overflow-hidden bg-white shadow-sm border border-gray-100">
-                <img
-                  src={watermarkedUrls[index] || url}
-                  alt={`Preview ${index + 1}`}
-                  className="w-full"
-                />
-                <div className="absolute top-4 right-4">
-                  <button
-                    className="px-4 py-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg hover:bg-white/100 transition-all text-sm font-medium text-gray-700 flex items-center gap-2"
-                    onClick={() => handleDownload(url, index)}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                    下载
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="relative group rounded-xl overflow-hidden bg-white shadow-sm border border-gray-100">
-                <img
-                  src={url}
-                  alt={`Preview ${index + 1}`}
-                  className="w-full"
-                />
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 bg-black/50">
-                  <button
-                    className="px-6 py-3 bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-colors text-gray-700 font-medium flex items-center gap-2"
-                    onClick={() => handleDownload(url, index)}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                    下载水印图片
-                  </button>
-                </div>
-              </div>
-            )}
+      <div className="grid grid-cols-2 gap-4">
+        {processedImages.map((url, index) => (
+          <div key={index} className="relative aspect-video">
+            <img
+              src={url}
+              alt={`Processed ${index + 1}`}
+              className="w-full h-full object-contain rounded-lg border border-gray-200"
+            />
           </div>
         ))}
       </div>
 
-      {previewUrls.length === 0 && (
-        <div className="p-12 text-center text-gray-500 border-2 border-dashed rounded-xl bg-gray-50/50">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <p className="text-lg font-medium">请上传图片以预览水印效果</p>
-          <p className="mt-2 text-sm text-gray-400">支持 JPG、PNG 格式图片</p>
-        </div>
+      {!isPreview && (
+        <button
+          onClick={handleDownload}
+          disabled={isProcessing || processedImages.length === 0}
+          className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+            isProcessing || processedImages.length === 0
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+          }`}
+        >
+          {isProcessing ? '处理中...' : '下载全部'}
+        </button>
       )}
     </div>
   )
