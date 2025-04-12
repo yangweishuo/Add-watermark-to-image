@@ -1,1 +1,634 @@
-<!DOCTYPE html><html lang="zh-CN" class="h-full"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="./_next/static/css/593ae03eaf20ce40.css" crossorigin="" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="./_next/static/chunks/webpack-6a53309d2983415a.js" crossorigin=""/><script src="./_next/static/chunks/fd9d1056-8f78d26414ffa56c.js" async="" crossorigin=""></script><script src="./_next/static/chunks/69-d6d600693f6e6b4c.js" async="" crossorigin=""></script><script src="./_next/static/chunks/main-app-41ac084d04160e43.js" async="" crossorigin=""></script><script src="./_next/static/chunks/app/page-01a3446f14fca112.js" async=""></script><title>图片水印工具</title><meta name="description" content="轻松为您的图片添加自定义水印"/><script src="./_next/static/chunks/polyfills-c67a75d1b6f99dc8.js" crossorigin="" noModule=""></script></head><body class="h-full bg-gradient-to-br from-gray-50 to-gray-100"><div class="min-h-full"><main class="min-h-screen py-12 px-4 sm:px-6 lg:px-8"><div class="max-w-7xl mx-auto"><div class="text-center mb-12"><h1 class="text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl">图片水印工具</h1><p class="mt-4 text-xl text-gray-600">轻松为您的图片添加自定义水印</p></div><div class="bg-white rounded-2xl shadow-xl overflow-hidden"><div class="divide-y divide-gray-200"><div class="p-6"><div class="flex items-center justify-between"><h2 class="text-2xl font-semibold text-gray-900">图片水印工具</h2><div class="flex items-center space-x-4"><input type="file" accept="image/*" class="hidden"/><button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">选择图片</button></div></div></div><div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-gray-200"><div class="p-6"><div class="space-y-6 p-4 bg-white rounded-lg shadow"><div class="border-b pb-4"><h3 class="text-lg font-medium text-gray-900">文字水印</h3><div class="mt-4 space-y-4"><div><label for="text" class="block text-sm font-medium text-gray-700">水印文字</label><div class="mt-1"><input type="text" id="text" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="输入水印文字" value=""/></div></div><div><label for="fontSize" class="block text-sm font-medium text-gray-700">字体大小</label><div class="mt-1"><input type="range" id="fontSize" min="10" max="100" class="w-full" value="20"/><div class="text-sm text-gray-500 mt-1">20<!-- -->px</div></div></div><div><label for="color" class="block text-sm font-medium text-gray-700">颜色</label><div class="mt-1 flex items-center"><input type="color" id="color" class="h-8 w-8 rounded-md border border-gray-300" value="#000000"/><input type="text" class="ml-2 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block sm:text-sm border-gray-300 rounded-md" value="#000000"/></div></div><div><label for="opacity" class="block text-sm font-medium text-gray-700">透明度</label><div class="mt-1"><input type="range" id="opacity" min="1" max="100" class="w-full" value="50"/><div class="text-sm text-gray-500 mt-1">50<!-- -->%</div></div></div><div><label for="position" class="block text-sm font-medium text-gray-700">位置</label><div class="mt-1"><select id="position" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"><option value="center" selected="">居中</option><option value="top-left">左上角</option><option value="top-right">右上角</option><option value="bottom-left">左下角</option><option value="bottom-right">右下角</option></select></div></div><div><label for="rotation" class="block text-sm font-medium text-gray-700">旋转角度</label><div class="mt-1"><input type="range" id="rotation" min="0" max="360" class="w-full" value="0"/><div class="text-sm text-gray-500 mt-1">0<!-- -->°</div></div></div><div class="flex items-center justify-between"><label for="tiled" class="block text-sm font-medium text-gray-700">平铺水印</label><div class="mt-1"><input type="checkbox" id="tiled" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"/></div></div></div></div><div><h3 class="text-lg font-medium text-gray-900">防伪水印</h3><div class="mt-4 space-y-4"><div><button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">添加随机防伪码</button></div><div><label for="securityCodeSize" class="block text-sm font-medium text-gray-700">防伪码大小</label><div class="mt-1"><input type="range" id="securityCodeSize" min="10" max="100" class="w-full"/><div class="text-sm text-gray-500 mt-1">px</div></div></div><div><label for="securityCodePosition" class="block text-sm font-medium text-gray-700">防伪码位置</label><div class="mt-1"><select id="securityCodePosition" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"><option value="tiled">平铺</option><option value="diagonal">对角线</option><option value="border">边框</option></select></div></div><div><label for="securityFont" class="block text-sm font-medium text-gray-700">防伪字体</label><div class="mt-1"><select id="securityFont" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"><option value="Arial" selected="">Arial</option><option value="Times New Roman">Times New Roman</option><option value="Courier New">Courier New</option><option value="Georgia">Georgia</option><option value="Verdana">Verdana</option></select></div></div></div></div></div></div><div class="p-6"><div class="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"><svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><p class="mt-2 text-sm text-gray-500">请选择一张图片</p></div></div></div></div></div></div></main></div><script src="./_next/static/chunks/webpack-6a53309d2983415a.js" crossorigin="" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:HL[\"./_next/static/css/593ae03eaf20ce40.css\",\"style\",{\"crossOrigin\":\"\"}]\n0:\"$L2\"\n"])</script><script>self.__next_f.push([1,"3:I[7690,[],\"\"]\n5:I[7831,[],\"\"]\n6:I[4846,[\"931\",\"static/chunks/app/page-01a3446f14fca112.js\"],\"\"]\n7:I[5613,[],\"\"]\n8:I[1778,[],\"\"]\na:I[8955,[],\"\"]\nb:[]\n"])</script><script>self.__next_f.push([1,"2:[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"./_next/static/css/593ae03eaf20ce40.css\",\"precedence\":\"next\",\"crossOrigin\":\"\"}]],[\"$\",\"$L3\",null,{\"buildId\":\"rTR81LO1I1Bud_roFQtWK\",\"assetPrefix\":\".\",\"initialCanonicalUrl\":\"/\",\"initialTree\":[\"\",{\"children\":[\"__PAGE__\",{}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"__PAGE__\",{},[\"$L4\",[\"$\",\"$L5\",null,{\"propsForComponent\":{\"params\":{}},\"Component\":\"$6\",\"isStaticGeneration\":true}],null]]},[null,[\"$\",\"html\",null,{\"lang\":\"zh-CN\",\"className\":\"h-full\",\"children\":[\"$\",\"body\",null,{\"className\":\"h-full bg-gradient-to-br from-gray-50 to-gray-100\",\"children\":[\"$\",\"div\",null,{\"className\":\"min-h-full\",\"children\":[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"loading\":\"$undefined\",\"loadingStyles\":\"$undefined\",\"loadingScripts\":\"$undefined\",\"hasLoading\":false,\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L8\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[],\"styles\":null}]}]}]}],null]],\"initialHead\":[false,\"$L9\"],\"globalErrorComponent\":\"$a\",\"missingSlots\":\"$Wb\"}]]\n"])</script><script>self.__next_f.push([1,"9:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"图片水印工具\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"轻松为您的图片添加自定义水印\"}]]\n4:null\n"])</script><script>self.__next_f.push([1,""])</script></body></html>
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>图片水印工具</title>
+  <meta name="description" content="轻松为您的图片添加自定义水印" />
+  <style>
+    /* 基本样式 */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(to bottom right, #f9fafb, #f3f4f6);
+      color: #111827;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .header p {
+      font-size: 1.25rem;
+      color: #6b7280;
+    }
+    
+    .card {
+      background-color: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+    
+    .card-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    @media (min-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    .panel {
+      padding: 1.5rem;
+      border-right: 1px solid #e5e7eb;
+    }
+    
+    .panel-section {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .panel-section h3 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    
+    .preview {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .dropzone {
+      width: 100%;
+      height: 300px;
+      border: 2px dashed #d1d5db;
+      border-radius: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #f9fafb;
+      cursor: pointer;
+    }
+    
+    .dropzone:hover {
+      border-color: #9ca3af;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+    }
+    
+    input[type="range"] {
+      width: 100%;
+    }
+    
+    .color-picker {
+      display: flex;
+      align-items: center;
+    }
+    
+    input[type="color"] {
+      height: 2rem;
+      width: 2rem;
+      padding: 0;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+    }
+    
+    input[type="text"].color-text {
+      margin-left: 0.5rem;
+      width: 7rem;
+    }
+    
+    .btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid transparent;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    .btn-primary {
+      background-color: #4f46e5;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: #4338ca;
+    }
+    
+    .preview-image {
+      max-width: 100%;
+      max-height: 500px;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .spinner {
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 3px solid #4f46e5;
+      width: 2rem;
+      height: 2rem;
+      animation: spin 1s linear infinite;
+      margin: 1rem auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .checkbox-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .range-value {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>图片水印工具</h1>
+      <p>轻松为您的图片添加自定义水印</p>
+    </header>
+    
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">图片水印工具</h2>
+        <div>
+          <input type="file" id="fileInput" accept="image/*" style="display: none;" multiple />
+          <button id="selectImage" class="btn btn-primary">选择图片</button>
+        </div>
+      </div>
+      
+      <div class="layout">
+        <div class="panel">
+          <div class="panel-section">
+            <h3>文字水印</h3>
+            
+            <div class="form-group">
+              <label class="form-label" for="watermarkText">水印文字</label>
+              <input type="text" id="watermarkText" class="form-control" placeholder="输入水印文字" />
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="fontSize">字体大小</label>
+              <input type="range" id="fontSize" min="10" max="100" value="20" />
+              <div class="range-value"><span id="fontSizeValue">20</span>px</div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="textColor">颜色</label>
+              <div class="color-picker">
+                <input type="color" id="textColor" value="#000000" />
+                <input type="text" id="colorText" class="form-control color-text" value="#000000" />
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="opacity">透明度</label>
+              <input type="range" id="opacity" min="1" max="100" value="50" />
+              <div class="range-value"><span id="opacityValue">50</span>%</div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="position">位置</label>
+              <select id="position" class="form-control">
+                <option value="center">居中</option>
+                <option value="top-left">左上角</option>
+                <option value="top-right">右上角</option>
+                <option value="bottom-left">左下角</option>
+                <option value="bottom-right">右下角</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="rotation">旋转角度</label>
+              <input type="range" id="rotation" min="0" max="360" value="0" />
+              <div class="range-value"><span id="rotationValue">0</span>°</div>
+            </div>
+            
+            <div class="form-group checkbox-group">
+              <label class="form-label" for="tiled">平铺水印</label>
+              <input type="checkbox" id="tiled" />
+            </div>
+            
+            <div id="spacingGroup" class="form-group" style="display: none;">
+              <label class="form-label" for="spacing">间距</label>
+              <input type="range" id="spacing" min="50" max="400" value="100" />
+              <div class="range-value"><span id="spacingValue">100</span>px</div>
+            </div>
+          </div>
+          
+          <div>
+            <h3>防伪水印</h3>
+            
+            <div class="form-group">
+              <button id="addSecurityCode" class="btn btn-primary">添加随机防伪码</button>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="securityCodeSize">防伪码大小</label>
+              <input type="range" id="securityCodeSize" min="10" max="100" value="20" />
+              <div class="range-value"><span id="securityCodeSizeValue">20</span>px</div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="securityCodePosition">防伪码位置</label>
+              <select id="securityCodePosition" class="form-control">
+                <option value="tiled">平铺</option>
+                <option value="diagonal">对角线</option>
+                <option value="border">边框</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="securityFont">防伪字体</label>
+              <select id="securityFont" class="form-control">
+                <option value="Arial">Arial</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Verdana">Verdana</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <div class="preview">
+          <div id="dropzone" class="dropzone">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <p style="margin-top: 1rem; color: #6b7280;">请选择一张图片</p>
+          </div>
+          
+          <div id="imagePreview" style="display: none; width: 100%;">
+            <img id="previewImage" class="preview-image" src="" alt="预览" />
+            <button id="downloadButton" class="btn btn-primary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+                <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              下载图片
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 元素引用
+      const fileInput = document.getElementById('fileInput');
+      const selectImageBtn = document.getElementById('selectImage');
+      const dropzone = document.getElementById('dropzone');
+      const imagePreview = document.getElementById('imagePreview');
+      const previewImage = document.getElementById('previewImage');
+      const downloadButton = document.getElementById('downloadButton');
+      
+      // 水印设置元素
+      const watermarkText = document.getElementById('watermarkText');
+      const fontSize = document.getElementById('fontSize');
+      const fontSizeValue = document.getElementById('fontSizeValue');
+      const textColor = document.getElementById('textColor');
+      const colorText = document.getElementById('colorText');
+      const opacity = document.getElementById('opacity');
+      const opacityValue = document.getElementById('opacityValue');
+      const position = document.getElementById('position');
+      const rotation = document.getElementById('rotation');
+      const rotationValue = document.getElementById('rotationValue');
+      const tiled = document.getElementById('tiled');
+      const spacingGroup = document.getElementById('spacingGroup');
+      const spacing = document.getElementById('spacing');
+      const spacingValue = document.getElementById('spacingValue');
+      
+      // 防伪水印元素
+      const addSecurityCodeBtn = document.getElementById('addSecurityCode');
+      const securityCodeSize = document.getElementById('securityCodeSize');
+      const securityCodeSizeValue = document.getElementById('securityCodeSizeValue');
+      const securityCodePosition = document.getElementById('securityCodePosition');
+      const securityFont = document.getElementById('securityFont');
+      
+      // 当前上传的图片
+      let currentImage = null;
+      
+      // 水印配置
+      const config = {
+        text: '',
+        fontSize: 20,
+        color: '#000000',
+        opacity: 50,
+        position: 'center',
+        rotation: 0,
+        tiled: false,
+        spacing: 100,
+        securityCodeSize: 20,
+        securityCodePosition: 'tiled',
+        securityFont: 'Arial'
+      };
+      
+      // 更新控件值显示
+      function updateValueDisplays() {
+        fontSizeValue.textContent = fontSize.value;
+        opacityValue.textContent = opacity.value;
+        rotationValue.textContent = rotation.value;
+        spacingValue.textContent = spacing.value;
+        securityCodeSizeValue.textContent = securityCodeSize.value;
+      }
+      
+      // 显示/隐藏间距设置
+      function toggleSpacingGroup() {
+        spacingGroup.style.display = tiled.checked ? 'block' : 'none';
+      }
+      
+      // 处理图片上传
+      function handleImageUpload(file) {
+        if (!file || !file.type.startsWith('image/')) return;
+        
+        currentImage = file;
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          previewImage.src = e.target.result;
+          dropzone.style.display = 'none';
+          imagePreview.style.display = 'flex';
+          processImage();
+        };
+        
+        reader.readAsDataURL(file);
+      }
+      
+      // 处理图片并添加水印
+      function processImage() {
+        if (!currentImage) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = img.width;
+            canvas.height = img.height;
+            
+            // 绘制原始图片
+            ctx.drawImage(img, 0, 0);
+            
+            // 添加水印
+            ctx.save();
+            ctx.globalAlpha = config.opacity / 100;
+            
+            // 文字水印
+            if (config.text) {
+              ctx.font = `${config.fontSize}px ${config.securityFont || 'Arial'}`;
+              ctx.fillStyle = config.color;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              
+              if (config.tiled) {
+                const spacingValue = config.spacing || 100;
+                for (let x = spacingValue; x < canvas.width; x += spacingValue) {
+                  for (let y = spacingValue; y < canvas.height; y += spacingValue) {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate((config.rotation * Math.PI) / 180);
+                    ctx.fillText(config.text, 0, 0);
+                    ctx.restore();
+                  }
+                }
+              } else {
+                const pos = getPosition(canvas.width, canvas.height, config.position);
+                ctx.save();
+                ctx.translate(pos.x, pos.y);
+                ctx.rotate((config.rotation * Math.PI) / 180);
+                ctx.fillText(config.text, 0, 0);
+                ctx.restore();
+              }
+            }
+            
+            ctx.restore();
+            
+            // 更新预览
+            previewImage.src = canvas.toDataURL('image/jpeg');
+          };
+          
+          img.src = e.target.result;
+        };
+        
+        reader.readAsDataURL(currentImage);
+      }
+      
+      // 获取水印位置
+      function getPosition(width, height, position) {
+        switch (position) {
+          case 'top-left':
+            return { x: width * 0.1, y: height * 0.1 };
+          case 'top-right':
+            return { x: width * 0.9, y: height * 0.1 };
+          case 'bottom-left':
+            return { x: width * 0.1, y: height * 0.9 };
+          case 'bottom-right':
+            return { x: width * 0.9, y: height * 0.9 };
+          default: // center
+            return { x: width * 0.5, y: height * 0.5 };
+        }
+      }
+      
+      // 生成随机防伪码
+      function generateSecurityCode() {
+        return Math.random().toString(36).substring(2, 8).toUpperCase();
+      }
+      
+      // 下载处理后的图片
+      function downloadImage() {
+        if (!previewImage.src) return;
+        
+        const a = document.createElement('a');
+        a.href = previewImage.src;
+        a.download = 'watermarked_image.jpg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+      
+      // 事件监听器
+      selectImageBtn.addEventListener('click', () => fileInput.click());
+      
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          handleImageUpload(e.target.files[0]);
+        }
+      });
+      
+      dropzone.addEventListener('click', () => fileInput.click());
+      
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.style.borderColor = '#9ca3af';
+      });
+      
+      dropzone.addEventListener('dragleave', () => {
+        dropzone.style.borderColor = '#d1d5db';
+      });
+      
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.style.borderColor = '#d1d5db';
+        if (e.dataTransfer.files.length > 0) {
+          handleImageUpload(e.dataTransfer.files[0]);
+        }
+      });
+      
+      downloadButton.addEventListener('click', downloadImage);
+      
+      // 水印设置更改事件
+      watermarkText.addEventListener('input', (e) => {
+        config.text = e.target.value;
+        processImage();
+      });
+      
+      fontSize.addEventListener('input', (e) => {
+        config.fontSize = parseInt(e.target.value);
+        fontSizeValue.textContent = e.target.value;
+        processImage();
+      });
+      
+      textColor.addEventListener('input', (e) => {
+        config.color = e.target.value;
+        colorText.value = e.target.value;
+        processImage();
+      });
+      
+      colorText.addEventListener('input', (e) => {
+        config.color = e.target.value;
+        textColor.value = e.target.value;
+        processImage();
+      });
+      
+      opacity.addEventListener('input', (e) => {
+        config.opacity = parseInt(e.target.value);
+        opacityValue.textContent = e.target.value;
+        processImage();
+      });
+      
+      position.addEventListener('change', (e) => {
+        config.position = e.target.value;
+        processImage();
+      });
+      
+      rotation.addEventListener('input', (e) => {
+        config.rotation = parseInt(e.target.value);
+        rotationValue.textContent = e.target.value;
+        processImage();
+      });
+      
+      tiled.addEventListener('change', (e) => {
+        config.tiled = e.target.checked;
+        toggleSpacingGroup();
+        processImage();
+      });
+      
+      spacing.addEventListener('input', (e) => {
+        config.spacing = parseInt(e.target.value);
+        spacingValue.textContent = e.target.value;
+        processImage();
+      });
+      
+      addSecurityCodeBtn.addEventListener('click', () => {
+        const securityCode = generateSecurityCode();
+        watermarkText.value = (watermarkText.value ? watermarkText.value + ' ' : '') + securityCode;
+        config.text = watermarkText.value;
+        processImage();
+      });
+      
+      securityCodeSize.addEventListener('input', (e) => {
+        config.securityCodeSize = parseInt(e.target.value);
+        securityCodeSizeValue.textContent = e.target.value;
+        processImage();
+      });
+      
+      securityCodePosition.addEventListener('change', (e) => {
+        config.securityCodePosition = e.target.value;
+        processImage();
+      });
+      
+      securityFont.addEventListener('change', (e) => {
+        config.securityFont = e.target.value;
+        processImage();
+      });
+      
+      // 初始化显示
+      updateValueDisplays();
+      toggleSpacingGroup();
+    });
+  </script>
+</body>
+</html>
+  
