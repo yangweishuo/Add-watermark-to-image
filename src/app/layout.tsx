@@ -1,10 +1,9 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import '../styles/globals.css'
 
-export const metadata: Metadata = {
-  title: "图片水印工具",
-  description: "支持批量处理、多种水印样式、防伪水印等功能的在线图片水印工具",
-};
+export const metadata = {
+  title: '图片水印工具',
+  description: '轻松为您的图片添加自定义水印',
+}
 
 export default function RootLayout({
   children,
@@ -12,8 +11,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh-CN">
-      <body>{children}</body>
+    <html lang="zh-CN" className="h-full">
+      <body className="h-full bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="min-h-full">
+          {children}
+        </div>
+      </body>
     </html>
-  );
-}
+  )
+} 

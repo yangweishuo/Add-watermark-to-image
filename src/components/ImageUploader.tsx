@@ -1,56 +1,56 @@
-'use client'
-
-import React, { useCallback, useState } from 'react'
+import React from 'react'
 import { useDropzone } from 'react-dropzone'
-
-interface ImageUploaderProps {
-  onUpload: (files: File[]) => void
-}
+import { ImageUploaderProps } from '../types/types'
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
-  const [isDragging, setIsDragging] = useState(false)
-
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const validFiles = acceptedFiles.filter(file => {
-      const isValidType = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)
-      const isValidSize = file.size <= 20 * 1024 * 1024 // 20MB
-      return isValidType && isValidSize
-    })
-
-    if (validFiles.length > 0) {
-      onUpload(validFiles)
-    }
-  }, [onUpload])
-
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
-      'image/jpeg': ['.jpg', '.jpeg'],
-      'image/png': ['.png'],
-      'image/webp': ['.webp'],
-      'image/gif': ['.gif']
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp']
     },
-    onDragEnter: () => setIsDragging(true),
-    onDragLeave: () => setIsDragging(false)
+    maxSize: 5242880, // 5MB
+    onDrop: (acceptedFiles) => {
+      onUpload(acceptedFiles)
+    }
   })
 
   return (
     <div
       {...getRootProps()}
-      className={`
-        p-8 border-2 border-dashed rounded-lg text-center cursor-pointer
-        transition-colors duration-200
-        ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}
-      `}
+      className={`p-8 border-2 border-dashed rounded-lg text-center cursor-pointer transition-all duration-200 ease-in-out
+        ${
+          isDragActive
+            ? 'border-blue-500 bg-blue-50'
+            : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+        }`}
     >
-      <input {...getInputProps()} />
-      <div className="space-y-2">
-        <p className="text-lg">拖拽图片到此处，或点击上传</p>
-        <p className="text-sm text-gray-500">
-          支持 JPG、PNG、WebP、GIF 格式
-          <br />
-          单个文件大小不超过 20MB
-        </p>
+      <input {...getInputProps()} className="hidden" />
+      <div className="space-y-4">
+        <svg
+          className={`w-16 h-16 mx-auto transition-colors duration-200 ${
+            isDragActive ? 'text-blue-500' : 'text-gray-400'
+          }`}
+          stroke="currentColor"
+          fill="none"
+          viewBox="0 0 48 48"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+          />
+        </svg>
+        <div className={`transition-colors duration-200 ${isDragActive ? 'text-blue-500' : 'text-gray-600'}`}>
+          {isDragActive ? (
+            <p className="text-lg font-medium">将图片拖放到此处</p>
+          ) : (
+            <>
+              <p className="text-lg font-medium">点击上传或将图片拖放到此处</p>
+              <p className="mt-2 text-sm text-gray-500">支持 PNG、JPG、GIF、WebP 格式，最大 5MB</p>
+            </>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -1,10 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  output: 'export', // 静态导出
   images: {
-    unoptimized: true
-  }
+    unoptimized: true,
+  },
+  trailingSlash: true,
+  distDir: 'dist',
+  output: 'export',
+  assetPrefix: './',
+  basePath: '',
+  cleanDistDir: true
 }
 
 module.exports = nextConfig 
